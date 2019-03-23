@@ -1,18 +1,22 @@
 const express = require('express');
+const request = require('request');
 const sharp = require('sharp');
-const path = require('path');
 const app = express();
 
 // This route handles image processing.
 app.get('/image', (req, res) => {
     res.set('content-type', 'image/jpeg');
 
-    // Sharp can accept a filename or a buffer.
-    sharp(path.join(__dirname, "..", "image.jpg"))
+    // Sharp can accept a filename, stream, or a buffer.
+    const pipeline = sharp()
         // Multiple operations can be called on the image, like resize, rotate, negate, blur, and flip.
         .rotate(Number(req.query.rotate))
         .flip((typeof(req.query.flip) !== 'undefined'))
         // And the result image can be written to a file or a stream.
+       
+    // An image of Charles V is grabbed from Wikimedia Commons before being processed.
+    request("https://upload.wikimedia.org/wikipedia/commons/4/41/Barend_van_Orley_-_Portrait_of_Charles_V_-_Google_Art_Project.jpg")
+        .pipe(pipeline)
         .pipe(res);
 });
 
